@@ -635,7 +635,8 @@ export function VillageCanvas({ isPlaying, soundEnabled, snowIntensity, onPlayCo
         ctx.fill()
       }
 
-      // === NEW SCENES ===
+      // Dog chase path
+      drawDogChasePath()
 
       // Carolers singing near the tree
       if (animationState.carolersSinging) {
@@ -843,9 +844,6 @@ export function VillageCanvas({ isPlaying, soundEnabled, snowIntensity, onPlayCo
         ctx.fill()
       }
 
-      // Dog chase path
-      drawDogChasePath()
-
       // Snow particles
       drawSnow()
 
@@ -873,8 +871,17 @@ export function VillageCanvas({ isPlaying, soundEnabled, snowIntensity, onPlayCo
       { delay: 8000, action: () => setAnimationState((prev) => ({ ...prev, iceSkatersSlip: true })) },
       { delay: 10000, action: () => setAnimationState((prev) => ({ ...prev, sleddingWipeout: true })) },
       { delay: 12000, action: () => setAnimationState((prev) => ({ ...prev, marshmallowRoast: true })) },
+      { delay: 14000, action: () => setAnimationState((prev) => ({ ...prev, carolersSinging: true })) },
+      { delay: 16000, action: () => setAnimationState((prev) => ({ ...prev, mailmanDelivering: true })) },
+      { delay: 18000, action: () => setAnimationState((prev) => ({ ...prev, mistletoeKiss: true })) },
+      { delay: 20000, action: () => setAnimationState((prev) => ({ ...prev, choppingWood: true })) },
+      { delay: 22000, action: () => setAnimationState((prev) => ({ ...prev, hotCocoaStand: true })) },
+      { delay: 24000, action: () => setAnimationState((prev) => ({ ...prev, decoratingTree: true })) },
+      { delay: 26000, action: () => setAnimationState((prev) => ({ ...prev, santaStuckChimney: true })) },
+      { delay: 28000, action: () => setAnimationState((prev) => ({ ...prev, catInTree: true })) },
+      { delay: 30000, action: () => setAnimationState((prev) => ({ ...prev, proposal: true })) },
       {
-        delay: 14000,
+        delay: 32000,
         action: () => {
           setShowReplay(true)
           onPlayComplete()
@@ -894,13 +901,24 @@ export function VillageCanvas({ isPlaying, soundEnabled, snowIntensity, onPlayCo
     setShowReplay(false)
     setAnimationState({
       dadFalling: false,
+      dadTangledLights: false,
       dogChasing: false,
       snowballFight: false,
       iceSkatersSlip: false,
       sleddingWipeout: false,
+      carolersSinging: false,
       carolersKnocking: false,
       gossipFence: false,
       marshmallowRoast: false,
+      mailmanDelivering: false,
+      mistletoeKiss: false,
+      kidEatingHouse: false,
+      choppingWood: false,
+      hotCocoaStand: false,
+      decoratingTree: false,
+      santaStuckChimney: false,
+      catInTree: false,
+      proposal: false,
     })
   }
 
@@ -925,6 +943,24 @@ export function VillageCanvas({ isPlaying, soundEnabled, snowIntensity, onPlayCo
       setAnimationState((prev) => ({ ...prev, sleddingWipeout: !prev.sleddingWipeout }))
     } else if (x > 580 && x < 680 && y > rect.height - 200 && y < rect.height - 150) {
       setAnimationState((prev) => ({ ...prev, marshmallowRoast: !prev.marshmallowRoast }))
+    } else if (x > 320 && x < 360 && y > rect.height - 180 && y < rect.height - 160) {
+      setAnimationState((prev) => ({ ...prev, carolersSinging: !prev.carolersSinging }))
+    } else if (x > 260 && x < 290 && y > rect.height - 175 && y < rect.height - 155) {
+      setAnimationState((prev) => ({ ...prev, mailmanDelivering: !prev.mailmanDelivering }))
+    } else if (x > 145 && x < 205 && y > 240 && y < 280) {
+      setAnimationState((prev) => ({ ...prev, mistletoeKiss: !prev.mistletoeKiss }))
+    } else if (x > 670 && x < 750 && y > rect.height - 210 && y < rect.height - 150) {
+      setAnimationState((prev) => ({ ...prev, hotCocoaStand: !prev.hotCocoaStand }))
+    } else if (x > 25 && x < 75 && y > rect.height - 175 && y < rect.height - 135) {
+      setAnimationState((prev) => ({ ...prev, choppingWood: !prev.choppingWood }))
+    } else if (x > 150 && x < 180 && y > 90 && y < 120) {
+      setAnimationState((prev) => ({ ...prev, santaStuckChimney: !prev.santaStuckChimney }))
+    } else if (x > 340 && x < 375 && y > rect.height - 250 && y < rect.height - 225) {
+      setAnimationState((prev) => ({ ...prev, catInTree: !prev.catInTree }))
+    } else if (x > 420 && x < 470 && y > 235 && y < 265) {
+      setAnimationState((prev) => ({ ...prev, proposal: !prev.proposal }))
+    } else if (x > 360 && x < 400 && y > rect.height - 225 && y < rect.height - 150) {
+      setAnimationState((prev) => ({ ...prev, decoratingTree: !prev.decoratingTree }))
     }
   }
 
