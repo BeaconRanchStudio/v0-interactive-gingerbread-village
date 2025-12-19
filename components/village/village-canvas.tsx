@@ -16,13 +16,24 @@ interface VillageCanvasProps {
 
 interface AnimationState {
   dadFalling: boolean
+  dadTangledLights: boolean
   dogChasing: boolean
   snowballFight: boolean
   iceSkatersSlip: boolean
   sleddingWipeout: boolean
+  carolersSinging: boolean
   carolersKnocking: boolean
   gossipFence: boolean
   marshmallowRoast: boolean
+  mailmanDelivering: boolean
+  mistletoeKiss: boolean
+  kidEatingHouse: boolean
+  choppingWood: boolean
+  hotCocoaStand: boolean
+  decoratingTree: boolean
+  santaStuckChimney: boolean
+  catInTree: boolean
+  proposal: boolean
 }
 
 export function VillageCanvas({ isPlaying, soundEnabled, snowIntensity, onPlayComplete }: VillageCanvasProps) {
@@ -34,13 +45,24 @@ export function VillageCanvas({ isPlaying, soundEnabled, snowIntensity, onPlayCo
   const dogPositionRef = useRef({ x: 0, y: 0, angle: 0, progress: 0 })
   const [animationState, setAnimationState] = useState<AnimationState>({
     dadFalling: false,
+    dadTangledLights: false,
     dogChasing: false,
     snowballFight: false,
     iceSkatersSlip: false,
     sleddingWipeout: false,
+    carolersSinging: false,
     carolersKnocking: false,
     gossipFence: false,
     marshmallowRoast: false,
+    mailmanDelivering: false,
+    mistletoeKiss: false,
+    kidEatingHouse: false,
+    choppingWood: false,
+    hotCocoaStand: false,
+    decoratingTree: false,
+    santaStuckChimney: false,
+    catInTree: false,
+    proposal: false,
   })
 
   const handleShare = async () => {
@@ -205,6 +227,69 @@ export function VillageCanvas({ isPlaying, soundEnabled, snowIntensity, onPlayCo
         ctx.moveTo(8, -2)
         ctx.lineTo(15, 5)
         ctx.stroke()
+      } else if (pose === "singing") {
+        // Arms out wide for singing
+        ctx.beginPath()
+        ctx.moveTo(-8, -2)
+        ctx.lineTo(-15, 0)
+        ctx.moveTo(8, -2)
+        ctx.lineTo(15, 0)
+        ctx.stroke()
+        // Open mouth
+        ctx.fillStyle = "#5A3825"
+        ctx.beginPath()
+        ctx.arc(0, -10, 2, 0, Math.PI * 2)
+        ctx.fill()
+      } else if (pose === "running") {
+        ctx.beginPath()
+        ctx.moveTo(-8, -2)
+        ctx.lineTo(-15, -5)
+        ctx.moveTo(8, -2)
+        ctx.lineTo(12, 8)
+        ctx.stroke()
+      } else if (pose === "kissing") {
+        ctx.beginPath()
+        ctx.moveTo(-8, -2)
+        ctx.lineTo(-10, 2)
+        ctx.moveTo(8, -2)
+        ctx.lineTo(10, 2)
+        ctx.stroke()
+      } else if (pose === "shocked") {
+        ctx.beginPath()
+        ctx.moveTo(-8, -2)
+        ctx.lineTo(-15, -10)
+        ctx.moveTo(8, -2)
+        ctx.lineTo(15, -10)
+        ctx.stroke()
+      } else if (pose === "chopping") {
+        ctx.beginPath()
+        ctx.moveTo(-8, -2)
+        ctx.lineTo(-5, -15)
+        ctx.moveTo(8, -2)
+        ctx.lineTo(5, -15)
+        ctx.stroke()
+      } else if (pose === "carrying") {
+        ctx.beginPath()
+        ctx.moveTo(-8, -2)
+        ctx.lineTo(-12, 0)
+        ctx.moveTo(8, -2)
+        ctx.lineTo(12, 0)
+        ctx.stroke()
+      } else if (pose === "kneeling") {
+        // Special kneeling pose for proposal
+        ctx.beginPath()
+        ctx.moveTo(-8, -2)
+        ctx.lineTo(-12, 5)
+        ctx.moveTo(8, -2)
+        ctx.lineTo(12, 5)
+        ctx.stroke()
+        // Only one leg visible
+        ctx.beginPath()
+        ctx.moveTo(-3, 8)
+        ctx.lineTo(-8, 15)
+        ctx.stroke()
+        ctx.restore()
+        return
       } else {
         ctx.beginPath()
         ctx.moveTo(-8, -2)
@@ -547,6 +632,214 @@ export function VillageCanvas({ isPlaying, soundEnabled, snowIntensity, onPlayCo
         ctx.fillStyle = "#FFFAFA"
         ctx.beginPath()
         ctx.arc(80, rect.height - 220, 4, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      // === NEW SCENES ===
+
+      // Carolers singing near the tree
+      if (animationState.carolersSinging) {
+        drawCharacter(320, rect.height - 170, 0.7, "singing")
+        drawCharacter(335, rect.height - 175, 0.7, "singing")
+        drawCharacter(350, rect.height - 168, 0.7, "singing")
+        // Songbooks
+        ctx.fillStyle = "#FFFAFA"
+        ctx.fillRect(318, rect.height - 165, 8, 10)
+        ctx.fillRect(333, rect.height - 170, 8, 10)
+        ctx.fillRect(348, rect.height - 163, 8, 10)
+        // Musical notes
+        ctx.fillStyle = "#333"
+        ctx.font = "12px serif"
+        ctx.fillText("♪", 340, rect.height - 190)
+        ctx.fillText("♫", 355, rect.height - 195)
+      }
+
+      // Mailman delivering packages
+      if (animationState.mailmanDelivering) {
+        drawCharacter(270, rect.height - 165, 0.8, "carrying")
+        // Packages
+        ctx.fillStyle = "#B8313A"
+        ctx.fillRect(275, rect.height - 160, 12, 10)
+        ctx.fillStyle = "#228B22"
+        ctx.fillRect(260, rect.height - 155, 10, 8)
+        // Ribbon
+        ctx.strokeStyle = "#FFD700"
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(275, rect.height - 155)
+        ctx.lineTo(287, rect.height - 155)
+        ctx.moveTo(281, rect.height - 160)
+        ctx.lineTo(281, rect.height - 150)
+        ctx.stroke()
+      }
+
+      // Mistletoe kiss scene
+      if (animationState.mistletoeKiss) {
+        // Mistletoe
+        ctx.fillStyle = "#228B22"
+        ctx.beginPath()
+        ctx.arc(165, 245, 8, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.fillStyle = "#FF0000"
+        ctx.beginPath()
+        ctx.arc(163, 248, 2, 0, Math.PI * 2)
+        ctx.arc(167, 248, 2, 0, Math.PI * 2)
+        ctx.fill()
+        // Characters kissing
+        drawCharacter(155, 270, 0.7, "kissing")
+        drawCharacter(175, 270, 0.7, "kissing")
+        // Kid going "eww"
+        drawCharacter(195, 275, 0.5, "shocked")
+        ctx.fillStyle = "#FFF"
+        ctx.font = "8px sans-serif"
+        ctx.fillText("EWW!", 190, 260)
+      }
+
+      // Hot cocoa stand
+      if (animationState.hotCocoaStand) {
+        // Table
+        ctx.fillStyle = "#A0724E"
+        ctx.fillRect(680, rect.height - 170, 50, 5)
+        // Table legs
+        ctx.fillRect(685, rect.height - 165, 5, 15)
+        ctx.fillRect(720, rect.height - 165, 5, 15)
+        // Cups
+        ctx.fillStyle = "#FFFAFA"
+        ctx.fillRect(690, rect.height - 180, 8, 10)
+        ctx.fillRect(705, rect.height - 180, 8, 10)
+        ctx.fillRect(718, rect.height - 180, 8, 10)
+        // Steam
+        ctx.strokeStyle = "rgba(255,255,255,0.5)"
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(694, rect.height - 182)
+        ctx.quadraticCurveTo(696, rect.height - 190, 694, rect.height - 195)
+        ctx.stroke()
+        // Kid running stand
+        drawCharacter(735, rect.height - 175, 0.6, "standing")
+        // Sign
+        ctx.fillStyle = "#8B4513"
+        ctx.fillRect(740, rect.height - 200, 30, 20)
+        ctx.fillStyle = "#FFF"
+        ctx.font = "6px sans-serif"
+        ctx.fillText("HOT", 745, rect.height - 192)
+        ctx.fillText("COCOA", 743, rect.height - 185)
+      }
+
+      // Chopping wood scene
+      if (animationState.choppingWood) {
+        // Log pile
+        ctx.fillStyle = "#6E4F3A"
+        for (let i = 0; i < 4; i++) {
+          ctx.beginPath()
+          ctx.ellipse(35 + i * 8, rect.height - 140 + i * 3, 8, 4, 0, 0, Math.PI * 2)
+          ctx.fill()
+        }
+        // Person chopping
+        drawCharacter(55, rect.height - 165, 0.9, "chopping")
+        // Axe
+        ctx.strokeStyle = "#6E4F3A"
+        ctx.lineWidth = 2
+        ctx.beginPath()
+        ctx.moveTo(55, rect.height - 180)
+        ctx.lineTo(55, rect.height - 200)
+        ctx.stroke()
+        ctx.fillStyle = "#888"
+        ctx.beginPath()
+        ctx.moveTo(50, rect.height - 200)
+        ctx.lineTo(60, rect.height - 200)
+        ctx.lineTo(55, rect.height - 210)
+        ctx.closePath()
+        ctx.fill()
+      }
+
+      // Santa stuck in chimney
+      if (animationState.santaStuckChimney) {
+        // Legs sticking out
+        ctx.strokeStyle = "#B8313A"
+        ctx.lineWidth = 5
+        ctx.beginPath()
+        ctx.moveTo(160, 115)
+        ctx.lineTo(155, 95)
+        ctx.moveTo(170, 115)
+        ctx.lineTo(175, 95)
+        ctx.stroke()
+        // Black boots
+        ctx.fillStyle = "#000"
+        ctx.beginPath()
+        ctx.ellipse(155, 92, 5, 3, 0, 0, Math.PI * 2)
+        ctx.ellipse(175, 92, 5, 3, 0, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      // Cat in tree
+      if (animationState.catInTree) {
+        // Cat body
+        ctx.fillStyle = "#FF8C00"
+        ctx.beginPath()
+        ctx.ellipse(360, rect.height - 235, 6, 4, 0, 0, Math.PI * 2)
+        ctx.fill()
+        // Cat head
+        ctx.beginPath()
+        ctx.arc(355, rect.height - 238, 4, 0, Math.PI * 2)
+        ctx.fill()
+        // Ears
+        ctx.beginPath()
+        ctx.moveTo(352, rect.height - 242)
+        ctx.lineTo(350, rect.height - 248)
+        ctx.lineTo(354, rect.height - 244)
+        ctx.fill()
+        ctx.beginPath()
+        ctx.moveTo(358, rect.height - 242)
+        ctx.lineTo(360, rect.height - 248)
+        ctx.lineTo(356, rect.height - 244)
+        ctx.fill()
+        // Tail
+        ctx.strokeStyle = "#FF8C00"
+        ctx.lineWidth = 2
+        ctx.beginPath()
+        ctx.arc(368, rect.height - 235, 6, Math.PI, Math.PI * 1.5)
+        ctx.stroke()
+      }
+
+      // Proposal scene
+      if (animationState.proposal) {
+        drawCharacter(430, 255, 0.8, "kneeling")
+        drawCharacter(450, 245, 0.8, "shocked")
+        // Ring
+        ctx.fillStyle = "#FFD700"
+        ctx.beginPath()
+        ctx.arc(435, 252, 3, 0, Math.PI * 2)
+        ctx.fill()
+        // Heart
+        ctx.fillStyle = "#FF69B4"
+        ctx.font = "14px sans-serif"
+        ctx.fillText("❤", 440, 225)
+      }
+
+      // Decorating tree scene
+      if (animationState.decoratingTree) {
+        // Ladder
+        ctx.strokeStyle = "#8B4513"
+        ctx.lineWidth = 2
+        ctx.beginPath()
+        ctx.moveTo(370, rect.height - 150)
+        ctx.lineTo(365, rect.height - 220)
+        ctx.moveTo(380, rect.height - 150)
+        ctx.lineTo(375, rect.height - 220)
+        for (let i = 0; i < 5; i++) {
+          ctx.moveTo(370 - i * 1, rect.height - 160 - i * 14)
+          ctx.lineTo(380 - i * 1, rect.height - 160 - i * 14)
+        }
+        ctx.stroke()
+        // Person on ladder
+        drawCharacter(372, rect.height - 210, 0.7, "standing")
+        // Person handing ornament
+        drawCharacter(390, rect.height - 165, 0.7, "standing")
+        // Ornament being passed
+        ctx.fillStyle = "#B8313A"
+        ctx.beginPath()
+        ctx.arc(385, rect.height - 180, 4, 0, Math.PI * 2)
         ctx.fill()
       }
 
