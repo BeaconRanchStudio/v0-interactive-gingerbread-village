@@ -2,280 +2,220 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Volume2, VolumeX } from "lucide-react"
+import { ChevronLeft, Volume2, VolumeX } from "lucide-react"
 
-// Define zoom levels with their media
 type ZoomLevel = {
   id: string
-  image?: string
-  video?: string
-  isLooping?: boolean
+  type: "image" | "video"
+  src: string
   hotspots?: Hotspot[]
-  title: string
+  loop?: boolean
 }
 
 type Hotspot = {
   id: string
-  // Coordinates as percentages of image dimensions
-  x: number // left position as %
-  y: number // top position as %
-  width: number // width as %
-  height: number // height as %
   label: string
+  x: number // percentage
+  y: number // percentage
+  width: number // percentage
+  height: number // percentage
+  transitionVideo?: string
   nextLevel: string
-  transitionVideo: string
 }
 
-// Define the zoom hierarchy
 const zoomLevels: Record<string, ZoomLevel> = {
   village: {
     id: "village",
-    image: "/images/village.png",
-    title: "The Gingerbread Village",
+    type: "image",
+    src: "/images/village.png",
     hotspots: [
       {
         id: "grandparents",
-        x: 48,
+        label: "Grandparents' House",
+        x: 35,
         y: 20,
-        width: 20,
-        height: 25,
-        label: "Visit Grandparents",
-        nextLevel: "houseRow",
+        width: 25,
+        height: 30,
         transitionVideo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/village%20to%20house%20row-7ab7Qc3mazhxQ9Ex6z7MNTmgwc9iMg.mp4",
+        nextLevel: "houseRow",
       },
     ],
   },
   houseRow: {
     id: "houseRow",
-    image: "/images/house-row.png",
-    title: "The House Row",
+    type: "image",
+    src: "/images/house-row.png",
     hotspots: [
       {
-        id: "grandparentsClose",
-        x: 50,
-        y: 20,
-        width: 30,
-        height: 35,
+        id: "mamawPapaw",
         label: "Mamaw & Papaw",
-        nextLevel: "mamawPapawMid",
+        x: 40,
+        y: 30,
+        width: 30,
+        height: 40,
         transitionVideo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/house%20row%20to%20mamaw%20and%20papaw-9KshEfp8tJAPNSuGxUHqZ38ODBlJZ4.mp4",
+        nextLevel: "midFrameMamawPapaw",
       },
     ],
   },
-  mamawPapawMid: {
-    id: "mamawPapawMid",
-    image: "/images/mid-frame-mamaw-and-papaw.png",
-    title: "Mamaw & Papaw's House",
+  midFrameMamawPapaw: {
+    id: "midFrameMamawPapaw",
+    type: "image",
+    src: "/images/mid-frame-mamaw-and-papaw.png",
     hotspots: [
       {
-        id: "mamawPapawFinal",
-        x: 35,
-        y: 35,
-        width: 30,
-        height: 35,
+        id: "mamawPapawClose",
         label: "Get Closer",
-        nextLevel: "mamawPapawFinal",
-        transitionVideo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/zoom%20in%20on%20mamaw%20and%20papaw-1uNa7IYsgMRkwjWLMZS6YaLvzhB2PL.mp4",
+        x: 25,
+        y: 25,
+        width: 50,
+        height: 50,
+        nextLevel: "mamawPapawVideo",
       },
     ],
   },
-  mamawPapawFinal: {
-    id: "mamawPapawFinal",
-    video: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/zoom%20in%20on%20mamaw%20and%20papaw-1uNa7IYsgMRkwjWLMZS6YaLvzhB2PL.mp4",
-    isLooping: true,
-    title: "Mamaw & Papaw",
+  mamawPapawVideo: {
+    id: "mamawPapawVideo",
+    type: "video",
+    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/zoom%20in%20on%20mamaw%20and%20papaw-1uNa7IYsgMRkwjWLMZS6YaLvzhB2PL.mp4",
+    loop: true,
   },
 }
 
 export function InteractiveZoomVillage() {
-  const [currentLevelId, setCurrentLevelId] = useState("village")
+  const [currentLevel, setCurrentLevel] = useState<string>("village")
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [showHotspots, setShowHotspots] = useState(true)
   const [soundEnabled, setSoundEnabled] = useState(false)
-  const [levelHistory, setLevelHistory] = useState<string[]>(["village"])
+  const [levelHistory, setLevelHistory] = useState<string[]>([])
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const transitionVideoRef = useRef<HTMLVideoElement>(null)
 
-  const currentLevel = zoomLevels[currentLevelId]
+  const currentZoomLevel = zoomLevels[currentLevel]
 
-  // Handle hotspot click
+  useEffect(() => {
+    if (currentZoomLevel.type === "video" && videoRef.current) {
+      videoRef.current.muted = !soundEnabled
+    }
+  }, [soundEnabled, currentZoomLevel.type])
+
   const handleHotspotClick = (hotspot: Hotspot) => {
     if (isTransitioning) return
 
-    setIsTransitioning(true)
-    setShowHotspots(false)
+    setLevelHistory([...levelHistory, currentLevel])
 
-    // Play transition video
-    if (transitionVideoRef.current) {
-      transitionVideoRef.current.src = hotspot.transitionVideo
-      transitionVideoRef.current.muted = !soundEnabled
-      transitionVideoRef.current.play()
-    }
-  }
+    if (hotspot.transitionVideo) {
+      setIsTransitioning(true)
 
-  // Handle transition video end
-  const handleTransitionEnd = () => {
-    const transitionVideo = transitionVideoRef.current
-    if (!transitionVideo) return
+      const transitionVideo = transitionVideoRef.current
+      if (transitionVideo) {
+        transitionVideo.src = hotspot.transitionVideo
+        transitionVideo.muted = !soundEnabled
+        transitionVideo.style.display = "block"
+        transitionVideo.play()
 
-    // Find which hotspot was clicked by checking the video src
-    const currentSrc = transitionVideo.src
-    let nextLevelId = currentLevelId
-
-    currentLevel.hotspots?.forEach((hotspot) => {
-      if (currentSrc.includes(hotspot.transitionVideo.split("/").pop()!)) {
-        nextLevelId = hotspot.nextLevel
+        transitionVideo.onended = () => {
+          setIsTransitioning(false)
+          transitionVideo.style.display = "none"
+          setCurrentLevel(hotspot.nextLevel)
+        }
       }
-    })
-
-    setCurrentLevelId(nextLevelId)
-    setLevelHistory((prev) => [...prev, nextLevelId])
-    setIsTransitioning(false)
-    setShowHotspots(true)
-
-    // If the next level is a looping video, start it
-    const nextLevel = zoomLevels[nextLevelId]
-    if (nextLevel.video && nextLevel.isLooping && videoRef.current) {
-      videoRef.current.src = nextLevel.video
-      videoRef.current.muted = !soundEnabled
-      videoRef.current.loop = true
-      videoRef.current.play()
+    } else {
+      setCurrentLevel(hotspot.nextLevel)
     }
   }
 
-  // Handle back button
   const handleBack = () => {
-    if (levelHistory.length <= 1) return
+    if (levelHistory.length === 0) return
 
+    // Stop any playing video
     if (videoRef.current) {
       videoRef.current.pause()
       videoRef.current.currentTime = 0
       videoRef.current.src = ""
     }
-    if (transitionVideoRef.current) {
-      transitionVideoRef.current.pause()
-      transitionVideoRef.current.currentTime = 0
-    }
 
-    const newHistory = [...levelHistory]
-    newHistory.pop() // Remove current level
-    const previousLevelId = newHistory[newHistory.length - 1]
-
-    setLevelHistory(newHistory)
-    setCurrentLevelId(previousLevelId)
-    setShowHotspots(true)
-    setIsTransitioning(false)
+    const previousLevel = levelHistory[levelHistory.length - 1]
+    setLevelHistory(levelHistory.slice(0, -1))
+    setCurrentLevel(previousLevel)
   }
 
-  // Update video sound when sound toggle changes
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = !soundEnabled
-    }
-    if (transitionVideoRef.current) {
-      transitionVideoRef.current.muted = !soundEnabled
-    }
-  }, [soundEnabled])
-
   return (
-    <div className="w-full max-w-7xl mx-auto p-4">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 text-balance">{currentLevel.title}</h1>
-        <p className="text-slate-300 text-lg">
-          {currentLevel.hotspots ? "Click on areas to zoom in and explore" : "Enjoying the view"}
-        </p>
-      </div>
-
-      {/* Main viewing area */}
-      <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
-        {/* Static image display */}
-        {currentLevel.image && !isTransitioning && (
+    <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
+      {/* Main content */}
+      <div className="relative w-full h-full">
+        {currentZoomLevel.type === "image" ? (
           <div className="relative w-full h-full">
             <img
-              src={currentLevel.image || "/placeholder.svg"}
-              alt={currentLevel.title}
-              className="w-full h-full object-contain"
+              src={currentZoomLevel.src || "/placeholder.svg"}
+              alt="Gingerbread village"
+              className="w-full h-full object-cover"
             />
 
-            {/* Hotspot overlays */}
-            {showHotspots &&
-              currentLevel.hotspots?.map((hotspot) => (
-                <button
-                  key={hotspot.id}
-                  onClick={() => handleHotspotClick(hotspot)}
-                  className="absolute group cursor-pointer"
-                  style={{
-                    left: `${hotspot.x}%`,
-                    top: `${hotspot.y}%`,
-                    width: `${hotspot.width}%`,
-                    height: `${hotspot.height}%`,
-                  }}
-                >
-                  {/* Hotspot highlight */}
-                  <div className="absolute inset-0 bg-amber-400/20 border-2 border-amber-400 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
-
-                  {/* Label */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="bg-amber-600 text-white px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap shadow-lg">
+            {/* Hotspots */}
+            {currentZoomLevel.hotspots?.map((hotspot) => (
+              <button
+                key={hotspot.id}
+                onClick={() => handleHotspotClick(hotspot)}
+                className="absolute group cursor-pointer"
+                style={{
+                  left: `${hotspot.x}%`,
+                  top: `${hotspot.y}%`,
+                  width: `${hotspot.width}%`,
+                  height: `${hotspot.height}%`,
+                }}
+                aria-label={hotspot.label}
+              >
+                <div className="w-full h-full border-4 border-yellow-400 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-yellow-400/20">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-white bg-black/80 px-3 py-1 rounded-full text-sm font-semibold">
                       {hotspot.label}
-                    </div>
+                    </span>
                   </div>
-                </button>
-              ))}
+                </div>
+              </button>
+            ))}
           </div>
-        )}
-
-        {/* Looping video display (final zoom level) */}
-        {currentLevel.video && currentLevel.isLooping && !isTransitioning && (
-          <video ref={videoRef} className="w-full h-full object-contain" loop muted={!soundEnabled} playsInline />
-        )}
-
-        {/* Transition video (plays during zoom transitions) */}
-        {isTransitioning && (
+        ) : (
           <video
-            ref={transitionVideoRef}
-            className="w-full h-full object-contain"
-            onEnded={handleTransitionEnd}
+            ref={videoRef}
+            src={currentZoomLevel.src}
+            className="w-full h-full object-cover"
+            autoPlay
+            loop={currentZoomLevel.loop}
+            muted={!soundEnabled}
             playsInline
           />
         )}
       </div>
 
-      {/* Controls */}
-      <div className="mt-6 flex items-center justify-between gap-4">
-        <Button
-          onClick={handleBack}
-          disabled={levelHistory.length <= 1 || isTransitioning}
-          variant="secondary"
-          size="lg"
-          className="gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Button>
+      {/* Transition video overlay */}
+      <video
+        ref={transitionVideoRef}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ display: "none" }}
+        playsInline
+      />
 
-        <div className="flex items-center gap-3">
-          <Button onClick={() => setSoundEnabled(!soundEnabled)} variant="outline" size="lg" className="gap-2">
-            {soundEnabled ? (
-              <>
-                <Volume2 className="w-4 h-4" />
-                Sound On
-              </>
-            ) : (
-              <>
-                <VolumeX className="w-4 h-4" />
-                Sound Off
-              </>
-            )}
+      {/* Controls */}
+      <div className="absolute top-4 left-4 flex gap-2">
+        {levelHistory.length > 0 && (
+          <Button onClick={handleBack} variant="secondary" size="sm" className="bg-white/90 hover:bg-white">
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Back
           </Button>
-        </div>
+        )}
       </div>
 
-      {/* Instructions */}
-      <div className="mt-6 text-center text-slate-400 text-sm">
-        <p>Hover over highlighted areas to see what you can explore</p>
+      <div className="absolute top-4 right-4">
+        <Button
+          onClick={() => setSoundEnabled(!soundEnabled)}
+          variant="secondary"
+          size="sm"
+          className="bg-white/90 hover:bg-white"
+        >
+          {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+        </Button>
       </div>
     </div>
   )
