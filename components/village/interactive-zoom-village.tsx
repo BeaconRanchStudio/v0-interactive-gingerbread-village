@@ -148,6 +148,16 @@ export function InteractiveZoomVillage() {
   const handleBack = () => {
     if (levelHistory.length <= 1) return
 
+    if (videoRef.current) {
+      videoRef.current.pause()
+      videoRef.current.currentTime = 0
+      videoRef.current.src = ""
+    }
+    if (transitionVideoRef.current) {
+      transitionVideoRef.current.pause()
+      transitionVideoRef.current.currentTime = 0
+    }
+
     const newHistory = [...levelHistory]
     newHistory.pop() // Remove current level
     const previousLevelId = newHistory[newHistory.length - 1]
@@ -155,6 +165,7 @@ export function InteractiveZoomVillage() {
     setLevelHistory(newHistory)
     setCurrentLevelId(previousLevelId)
     setShowHotspots(true)
+    setIsTransitioning(false)
   }
 
   // Update video sound when sound toggle changes
