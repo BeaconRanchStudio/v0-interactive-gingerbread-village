@@ -35,7 +35,7 @@ const zoomLevels: Record<string, ZoomLevel> = {
     hotspots: [
       {
         id: "grandparents",
-        x: 48, // Grandparents house location (approximate)
+        x: 48,
         y: 20,
         width: 20,
         height: 25,
@@ -47,12 +47,12 @@ const zoomLevels: Record<string, ZoomLevel> = {
   },
   houseRow: {
     id: "houseRow",
-    image: "/images/house-20row.png",
+    image: "/images/house-row.png",
     title: "The House Row",
     hotspots: [
       {
         id: "grandparentsClose",
-        x: 50, // Center-right where grandparents are on porch
+        x: 50,
         y: 20,
         width: 30,
         height: 35,
@@ -64,7 +64,7 @@ const zoomLevels: Record<string, ZoomLevel> = {
   },
   mamawPapawMid: {
     id: "mamawPapawMid",
-    image: "/images/mid-20frame-20mamaw-20and-20papaw.png",
+    image: "/images/mid-frame-mamaw-and-papaw.png",
     title: "Mamaw & Papaw's House",
     hotspots: [
       {
